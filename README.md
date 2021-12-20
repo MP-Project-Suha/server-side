@@ -205,11 +205,12 @@
 
 ### Rating Module:
 
-| Name      | Required           | Unique | Default | Reference | Type   |
-| --------- | ------------------ | ------ | ------- | --------- | ------ |
-| rate      | :white_check_mark: |        |         |           | Number |
-| event     | :white_check_mark: |        |         | Event     |        |
-| createdBy | :white_check_mark: |        |         | User      |        |
+| Name      | Required           | Unique | Defult | Refrence | Type    |
+| --------- | ------------------ | ------ | ------ | -------- | ------- |
+| rate      | :white_check_mark: |        |        |          | Number  |
+| ticket     | :white_check_mark: |        |        | Ticket    |         |
+| createdBy | :white_check_mark: |        |        | User     |         |
+
 
 ---
 
