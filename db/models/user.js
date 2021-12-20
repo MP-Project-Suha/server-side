@@ -34,7 +34,7 @@ userSchema.methods.generateVerificationToken = function () {
   userSchema.methods.generateToken = function () {
     const user = this;
     const token = jwt.sign(
-        { ID: user._id },
+        { _id: user._id },
         process.env.secret_key, {  expiresIn: "7d"}
     );
     return token;

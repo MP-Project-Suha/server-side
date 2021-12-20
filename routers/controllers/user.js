@@ -45,7 +45,6 @@ const register = async (req, res) => {
     // Step 2 - Generate verification token
     const verificationToken = newUser.generateVerificationToken();
 
-    
     // Step 3 - Email the user a unique verification link
     const url = `${process.env.FRONT_URL}/verify/${verificationToken}`;
     transporter.sendMail({
@@ -177,7 +176,7 @@ const googleLogin = (req, res) => {
                 }
 
                 const token = data.generateToken();
-               
+
                 // const { _id, firstName,lastName, email, role } = newUser;
                 res.status(200).json({ result: data, token });
               });
@@ -192,7 +191,6 @@ const googleLogin = (req, res) => {
     });
 };
 
-
 // forget password controller
 const forgetPassword = (req, res) => {
   const { email } = req.body; //to send email to user
@@ -200,20 +198,19 @@ const forgetPassword = (req, res) => {
   if (savedEmail) {
     userModel
       .findOne({ email: savedEmail })
-      .then((result) => { //email found
+      .then((result) => {
+        //email found
         if (result) {
-          console.log(result);
           const payload = {
-            id: result._id, // User ID from database
+            id: result._id, // User id from database
             email: savedEmail,
           };
 
-          console.log(payload, "pay");
-          // one-time-use token 
+          // one-time-use token
           const secret = result.password + `-` + result.avatar;
           const token = jwtSimple.encode(payload, secret);
 
-//Send email containing link to reset password.
+          //Send email that contains a link to reset password.
           const url = `${process.env.FRONT_URL}/resetPassword/${payload.id}/${token}`;
           transporter.sendMail({
             to: savedEmail,
@@ -242,7 +239,6 @@ const resetPassword = (req, res) => {
   });
 
   userModel.findById(_id).then(async (result) => {
- 
     const SALT = Number(process.env.SALT);
     const hashedPass = await bcrypt.hash(password, SALT);
     if (hashedPass) {
@@ -250,19 +246,177 @@ const resetPassword = (req, res) => {
         .findByIdAndUpdate(_id, { password: hashedPass })
         .then((result) => {
           const token = result.generateToken();
-          res
-            .status(200)
-            .json({
-              result,
-              token,
-              message: "Your password has been successfully changed.",
-            });
+          res.status(200).json({
+            result,
+            token,
+            message: "Your password has been successfully changed.",
+          });
         })
         .catch((error) => {
           res.status(500).json(error);
         });
     }
   });
+};
+
+//get user data by user
+const getProfile = (req, res) => {
+  try {
+    const _id = req.suha._id;
+    console.log(req.suha);
+    userModel
+      .findOne({ _id: _id, isDele: false })
+      .then((result) => {
+        if (result) {
+          res.status(200).json(result);
+        } else {
+          res.status(404).json("user dose not exist");
+        }
+      })
+      .catch((error) => {
+        res.status(400).json(error);
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+//update user data by user also soft delete
+const updateProfile = async(req, res) => {
+  try {
+    const userId = req.suha._id;
+    const { firstName, lastName,password, avatar , email ,isDele} = req.body;
+
+    //update first name
+    if (firstName) {
+      userModel
+        .findOneAndUpdate({ _id: userId, isDele: false }, { firstName },{new: true})
+        .then((result) => {
+          if (result) {
+            res.status(200).json(result);
+          } else {
+            res.status(404).json("user dose not exist");
+          }
+        })
+        .catch((error) => {
+          res.status(400).json(error);
+        });
+    }
+    //update last name name
+    if (lastName) {
+      userModel
+        .findOneAndUpdate({ _id: userId, isDele: false }, { lastName },{new: true})
+        .then((result) => {
+          if (result) {
+            res.status(200).json(result);
+          } else {
+            res.status(404).json("user dose not exist");
+          }
+          
+        })
+        .catch((error) => {
+          res.status(400).json(error);
+        });
+    }
+        //update password
+        if (password) {
+            const SALT = Number(process.env.SALT);
+            const hashedPass = await bcrypt.hash(password, SALT);
+            userModel
+              .findOneAndUpdate({ _id: userId, isDele: false }, { password:hashedPass },{new: true})
+              .then((result) => {
+                if (result) {
+                  res.status(200).json(result);
+                } else {
+                  res.status(404).json("user dose not exist");
+                }
+                
+              })
+              .catch((error) => {
+                res.status(400).json(error);
+              });
+          }
+                 //update avatar
+        if (avatar) {
+            userModel
+              .findOneAndUpdate({ _id: userId, isDele: false }, { avatar },{new: true})
+              .then((result) => {
+                if (result) {
+                  res.status(200).json(result);
+                } else {
+                  res.status(404).json("user dose not exist");
+                }
+                
+              })
+              .catch((error) => {
+                res.status(400).json(error);
+              });
+          }
+
+
+          if (email) {
+
+            const savedEmail = email.toLowerCase();
+            const existingUser = await userModel.findOne({ email: savedEmail }).exec();
+            if (existingUser) {
+              return res.status(409).send({
+                message: "Email is already in use.",
+              });
+            }
+            userModel
+              .findOneAndUpdate({ _id: userId, isDele: false }, { email: savedEmail },{new: true})
+              .then((result) => {
+                if (result) {
+                  res.status(200).json(result);
+                } else {
+                  res.status(404).json("user dose not exist");
+                }
+                
+              })
+              .catch((error) => {
+                res.status(400).json(error);
+              });
+          }
+
+          if (isDele) {
+
+            userModel
+              .findOneAndUpdate({ _id: userId, isDele: false }, { isDele: true },{new: true})
+              .then((result) => {
+                if (result) {
+                  res.status(200).json(result);
+                } else {
+                  res.status(404).json("user dose not exist");
+                }
+                
+              })
+              .catch((error) => {
+                res.status(400).json(error);
+              });
+          }
+          if (!isDele) {
+
+            userModel
+              .findOneAndUpdate({ _id: userId, isDele: true }, { isDele: false },{new: true})
+              .then((result) => {
+                if (result) {
+                  res.status(200).json(result);
+                } else {
+                  res.status(200).json("wrong enters");
+                }
+                
+              })
+              .catch((error) => {
+                res.status(400).json(error);
+              });
+          }
+
+
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
 };
 
 module.exports = {
@@ -272,4 +426,6 @@ module.exports = {
   googleLogin,
   forgetPassword,
   resetPassword,
+  getProfile,
+  updateProfile,
 };
