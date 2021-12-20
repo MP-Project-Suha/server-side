@@ -1,4 +1,5 @@
 const roleModel = require("../../db/models/role");
+require("dotenv").config();
 
 //if it's admin or not
 const authorization = async (req, res, next) => {
