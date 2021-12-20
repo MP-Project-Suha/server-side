@@ -210,7 +210,7 @@
 | rate      | :white_check_mark: |        |        |          | Number  |
 | event     | :white_check_mark: |        |        | Event    |         |
 | createdBy | :white_check_mark: |        |        | User     |         |
-| isDele    | :white_check_mark: |        | false  |          | Boolean |
+
 
 ---
 
@@ -218,11 +218,13 @@
 
 | Name      | Required           | Unique | Defult | Refrence | Type    |
 | --------- | ------------------ | ------ | ------ | -------- | ------- |
-| order      | :white_check_mark: |        |        |          | Array |
-| ticket     | :white_check_mark: |        |        | Ticket    |         |
+| tickets     | :white_check_mark: |        |        |     |   Array      |
 | total     | :white_check_mark: |        |        |     | Number |
 | createdBy | :white_check_mark: |        |        | User     |         |
+| createdAt | :white_check_mark: |        |        |     | Date   |
 | isVerfied    | :white_check_mark: |        | false  |          | Boolean |
+| isDele    | :white_check_mark: |        | false  |          | Boolean |
+| expired    | :white_check_mark: |        | false  |          | Boolean |
 ---
 
 # ER Digram:
