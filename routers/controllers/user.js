@@ -76,10 +76,12 @@ const verify = async (req, res) => {
     payload = jwt.verify(token, process.env.secert_key);
 
     userModel
-      .findOneAndUpdate({ _id: payload.ID }, { isVerfied: true },{new: true})
+      .findOneAndUpdate({ _id: payload.ID }, { isVerfied: true }, { new: true })
       .then((result) => {
         if (result) {
-          res.status(201).json({ message: "verified account successed", result });
+          res
+            .status(201)
+            .json({ message: "verified account successed", result });
         } else {
           res.status(404).send({
             message: "User does not  exists",
@@ -106,7 +108,7 @@ const login = async (req, res) => {
       if (result) {
         if (result.isVerfied == true) {
           const newpass = await bcrypt.compare(password, result.password);
-         
+
           if (newpass) {
             const options = {
               expiresIn: "7d",
@@ -120,7 +122,6 @@ const login = async (req, res) => {
           } else {
             res.status(404).json("Invalaid password  or email");
           }
-
         } else {
           return res.status(403).json({
             message: "Verify your Account.",
@@ -136,8 +137,81 @@ const login = async (req, res) => {
     });
 };
 
+//log in with google
+const client = new OAuth2Client(process.env.CLIENT_ID);
+const googleLogin = (req, res) => {
+  const { tokenId } = req.body;
+
+  client
+    .verifyIdToken({
+      idToken: tokenId,
+      audience: process.env.CLIENT_ID,
+    })
+    .then((result) => {
+      // console.log("result from google",result.payload);
+      const { email_verified, name, email, profileObj } = result.payload;
+      if (email_verified) {
+        userModel.findOne({ email }).exec((err, user) => {
+          if (err) {
+            return res.status(400).json(err);
+          } else {
+            if (user) {
+              //login
+              const options = {
+                expiresIn: "7d",
+              };
+              const token = jwt.sign(
+                { role: user.role, _id: user._id },
+                process.env.secert_key,
+                options
+              );
+              const result = {
+                _id: user._id,
+                firstName: name,
+                lastName: name,
+                email,
+                role: process.env.USER_ROLE,
+              };
+              res.status(200).json({ result, token });
+            } else {
+              //create new user
+              let password = email + process.env.secert_key;
+              const newUser = new userModel({
+                firstName: name,
+                lastName: name,
+                password,
+                email,
+                role: process.env.USER_ROLE,
+              });
+              newUser.save((err, data) => {
+                if (err) {
+                  return res.status(400).json(err);
+                }
+
+                const token = jwt.sign(
+                  { role: data.role, _id: data._id },
+                  process.env.secert_key,
+                  {
+                    expiresIn: "7d",
+                  }
+                );
+                // const { _id, firstName,lastName, email, role } = newUser;
+                res.status(200).json({ result: data, token });
+              });
+            }
+          }
+        });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(400).json(error);
+    });
+};
+
 module.exports = {
   register,
   verify,
   login,
+  googleLogin,
 };
