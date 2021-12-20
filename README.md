@@ -208,7 +208,7 @@
 | Name      | Required           | Unique | Defult | Refrence | Type    |
 | --------- | ------------------ | ------ | ------ | -------- | ------- |
 | rate      | :white_check_mark: |        |        |          | Number  |
-| event     | :white_check_mark: |        |        | Event    |         |
+| ticket     | :white_check_mark: |        |        | Ticket    |         |
 | createdBy | :white_check_mark: |        |        | User     |         |
 | isDele    | :white_check_mark: |        | false  |          | Boolean |
 
