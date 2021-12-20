@@ -8,11 +8,14 @@ const eventSchema = new mongoose.Schema(
     images: { type: Array, required: true },
     location: { type: String, required: true },
     cost: { type:Number, required: true },
+
     createdAt: { type: Date, default: Date.now },
     biginAt: { type: Date, required: true },
     endAt: { type: Date, required: true },
+
     isDele: { type: Boolean, default: false, required: true },
     isVerfied: { type: Boolean, default: false, required: true },
+    
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
