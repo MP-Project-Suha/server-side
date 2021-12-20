@@ -7,6 +7,7 @@ const orderSchema = new mongoose.Schema(
         ticket: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Ticket",
+          required: true,
         },
         quantity: {
           type: Number,
@@ -14,7 +15,7 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
-    total: { type: Date, default: Date.now },
+    total: { type: Number, required: true,},
 
     isDele: { type: Boolean, default: false, required: true },
     isVerfied: { type: Boolean, default: false, required: true },
