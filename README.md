@@ -187,7 +187,7 @@
 | endAt   | :white_check_mark: |        |          |          | Date    |
 | isVerfied | :white_check_mark: |        | false    |          | Boolean |
 | isDele    | :white_check_mark: |        | false    |          | Boolean |
-| cost      | :white_check_mark: |        |          |          | String  |
+| price      | :white_check_mark: |        |          |          | String  |
 
 ---
 
