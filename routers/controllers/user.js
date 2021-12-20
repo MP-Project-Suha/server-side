@@ -42,8 +42,10 @@ const register = async (req, res) => {
       role,
     });
     newUser.save();
-    // Step 2 - Generate verfication token
+    // Step 2 - Generate verification token
     const verificationToken = newUser.generateVerificationToken();
+
+    
     // Step 3 - Email the user a unique verification link
     const url = `${process.env.FRONT_URL}/verify/${verificationToken}`;
     transporter.sendMail({
@@ -73,7 +75,7 @@ const verify = async (req, res) => {
 
     let payload = null;
 
-    payload = jwt.verify(token, process.env.secert_key);
+    payload = jwt.verify(token, process.env.secret_key);
 
     userModel
       .findOneAndUpdate({ _id: payload.ID }, { isVerfied: true }, { new: true })
@@ -110,17 +112,10 @@ const login = async (req, res) => {
           const newpass = await bcrypt.compare(password, result.password);
 
           if (newpass) {
-            const options = {
-              expiresIn: "7d",
-            };
-            const token = jwt.sign(
-              { role: result.role, _id: result._id },
-              process.env.secert_key,
-              options
-            );
+            const token = result.generateToken();
             res.status(201).json({ result, token });
           } else {
-            res.status(404).json("Invalaid password  or email");
+            res.status(404).json("Invalid password  or email");
           }
         } else {
           return res.status(403).json({
@@ -128,7 +123,7 @@ const login = async (req, res) => {
           });
         }
       } else {
-        res.status(404).json("Invalaid password  or email");
+        res.status(404).json("Invalid password  or email");
       }
     })
     .catch((error) => {
@@ -157,14 +152,7 @@ const googleLogin = (req, res) => {
           } else {
             if (user) {
               //login
-              const options = {
-                expiresIn: "7d",
-              };
-              const token = jwt.sign(
-                { role: user.role, _id: user._id },
-                process.env.secert_key,
-                options
-              );
+              const token = user.generateToken();
               const result = {
                 _id: user._id,
                 firstName: name,
@@ -175,7 +163,7 @@ const googleLogin = (req, res) => {
               res.status(200).json({ result, token });
             } else {
               //create new user
-              let password = email + process.env.secert_key;
+              let password = email + process.env.secret_key;
               const newUser = new userModel({
                 firstName: name,
                 lastName: name,
@@ -188,13 +176,8 @@ const googleLogin = (req, res) => {
                   return res.status(400).json(err);
                 }
 
-                const token = jwt.sign(
-                  { role: data.role, _id: data._id },
-                  process.env.secert_key,
-                  {
-                    expiresIn: "7d",
-                  }
-                );
+                const token = data.generateToken();
+               
                 // const { _id, firstName,lastName, email, role } = newUser;
                 res.status(200).json({ result: data, token });
               });
@@ -209,9 +192,86 @@ const googleLogin = (req, res) => {
     });
 };
 
+
+// forget password controller
+const forgetPassword = (req, res) => {
+  const { email } = req.body; //to send email to user
+  const savedEmail = email.toLowerCase();
+  if (savedEmail) {
+    userModel
+      .findOne({ email: savedEmail })
+      .then((result) => { //email found
+        if (result) {
+          console.log(result);
+          const payload = {
+            id: result._id, // User ID from database
+            email: savedEmail,
+          };
+
+          console.log(payload, "pay");
+          // one-time-use token 
+          const secret = result.password + `-` + result.avatar;
+          const token = jwtSimple.encode(payload, secret);
+
+//Send email containing link to reset password.
+          const url = `${process.env.FRONT_URL}/${payload.id}/${token}`;
+          transporter.sendMail({
+            to: savedEmail,
+            subject: "Reset password link",
+            html: `Click <a href = '${url}'>here</a> to reset password.`,
+          });
+
+          res.status(200).json("email sent successfully");
+        } else {
+          res.status(404).json("not found email");
+        }
+      })
+      .catch((error) => {
+        res.status(500).send(error);
+      });
+  }
+};
+
+const resetPassword = (req, res) => {
+  const { _id } = req.params; //user id
+  const { token } = req.params;
+  userModel.findById(_id).then((result) => {
+    const secret = result.password + `-` + result.avatar;
+    const payload = jwtSimple.decode(token, secret);
+  });
+
+  userModel.findById(id).then(async (result) => {
+    const { password } = req.body;
+    const SALT = Number(process.env.SALT);
+    const hashedPass = await bcrypt.hash(password, SALT);
+    if (hashedPass) {
+      userModel
+        .findByIdAndUpdate(id, { password: hashedPass })
+        .then((result) => {
+          const options = {
+            expiresIn: "7d",
+          };
+          const token = result.generateToken();
+          res
+            .status(200)
+            .json({
+              result,
+              token,
+              message: "Your password has been successfully changed.",
+            });
+        })
+        .catch((error) => {
+          res.status(500).json(error);
+        });
+    }
+  });
+};
+
 module.exports = {
   register,
   verify,
   login,
   googleLogin,
+  forgetPassword,
+  resetPassword,
 };

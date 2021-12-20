@@ -1,21 +1,25 @@
 const express = require("express");
 const userRouter = express.Router();
 
-// authentication middelle wear
+// authentication middle wear
 const authentication = require("../auth/authentication");
-// authentication middelle wear
+// authentication middle wear
 const authorization = require("../auth/authorization");
 
 // Destructuring controllers
-const { register , verify, login,googleLogin} = require("../controllers/user");
+const { register , verify, login, googleLogin, forgetPassword, resetPassword} = require("../controllers/user");
 
-//register route and verfy account route
+// Register route and verify account route
 userRouter.post("/register", register);
 userRouter.get("/verify/:token", verify);
 
-//login route
+// Login route
 userRouter.post("/login", login);
-//google login 
-userRouter.post("/googleLoggin", googleLogin);
+// Google login 
+userRouter.post("/googleLogin", googleLogin);
+
+// For reset password routes
+userRouter.post("/forgotPassword", forgetPassword);
+userRouter.post("/resetPassword/:_id/:token", resetPassword);
 
 module.exports = userRouter;

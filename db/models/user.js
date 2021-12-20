@@ -26,9 +26,18 @@ userSchema.methods.generateVerificationToken = function () {
     const user = this;
     const verificationToken = jwt.sign(
         { ID: user._id },
-        process.env.secert_key
+        process.env.secret_key
     );
     return verificationToken;
+  };
+
+  userSchema.methods.generateToken = function () {
+    const user = this;
+    const token = jwt.sign(
+        { ID: user._id },
+        process.env.secret_key, {  expiresIn: "7d"}
+    );
+    return token;
   };
 
 module.exports = mongoose.model("User", userSchema);
