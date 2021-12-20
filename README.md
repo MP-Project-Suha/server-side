@@ -183,8 +183,8 @@
 | location  | :white_check_mark: |        |          |          | String  |
 | createdBy | :white_check_mark: |        |          | User     |         |
 | createdAt | :white_check_mark: |        | Now Date |          | Date    |
-| dateBigin | :white_check_mark: |        |          |          | Date    |
-| dateEnd   | :white_check_mark: |        |          |          | Date    |
+| biginAt | :white_check_mark: |        |          |          | Date    |
+| endAt   | :white_check_mark: |        |          |          | Date    |
 | isVerfied | :white_check_mark: |        | false    |          | Boolean |
 | isDele    | :white_check_mark: |        | false    |          | Boolean |
 | cost      | :white_check_mark: |        |          |          | String  |
