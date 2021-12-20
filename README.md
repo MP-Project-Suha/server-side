@@ -71,8 +71,8 @@
 
 | HTTP Method | URL | Request Body | Request Params | Permissions | Success Status | Error status | Description |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
-| post | /role | {role,permissions} |  | private `authanication`, `autharization` | 201 | 400 | create role |
-| get | /role |  |  | private `authanication`, `autharization` | 200 | 400 | all roles |
+| post | /role | {role,permissions} |  | private `authanication`, `autharization` | 201 | 400 | create new role by admin |
+| get | /roles |  |  | private `authanication`, `autharization` | 200 | 400 | get all roles by admin |
 
 
 ### USER ROUTERS:
