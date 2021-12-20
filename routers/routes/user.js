@@ -6,16 +6,14 @@ const authentication = require("../auth/authentication");
 // authentication middelle wear
 const authorization = require("../auth/authorization");
 
-
 // Destructuring controllers
-const {
-    register,
-  } = require("../controllers/user");
-  
+const { register , verify, login} = require("../controllers/user");
 
-  
-  //register route
-  userRouter.post("/register", register);
+//register route and verfy account route
+userRouter.post("/register", register);
+userRouter.get("/verify/:token", verify);
 
-  
-  module.exports = userRouter;
+//login route
+userRouter.post("/login", login);
+
+module.exports = userRouter;

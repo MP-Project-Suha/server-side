@@ -12,8 +12,8 @@ const authorization = require("../auth/authorization");
 //controllers:
 
 //create a role by admin
-roleRouter.post("/role", createRole);
+roleRouter.post("/role", authentication, authorization, createRole);
 //get roles data by admin
-roleRouter.get("/roles", getAllRoles);
+roleRouter.get("/roles", authentication, authorization, getAllRoles);
 
 module.exports = roleRouter;

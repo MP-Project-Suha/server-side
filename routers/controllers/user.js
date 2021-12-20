@@ -51,7 +51,7 @@ const register = async (req, res) => {
       subject: "Verify Your Account",
       html: `Click <a href = '${url}'>here</a> to confirm your email.`,
     });
-  res.status(201).send({
+    res.status(201).send({
       message: `Sent a verification email to ${savedEmail}`,
     });
   } catch (error) {
@@ -60,6 +60,84 @@ const register = async (req, res) => {
   }
 };
 
+//verify controller
+const verify = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    if (!token) {
+      return res.status(422).send({
+        message: "Missing Token",
+      });
+    }
+
+    let payload = null;
+
+    payload = jwt.verify(token, process.env.secert_key);
+
+    userModel
+      .findOneAndUpdate({ _id: payload.ID }, { isVerfied: true },{new: true})
+      .then((result) => {
+        if (result) {
+          res.status(201).json({ message: "verified account successed", result });
+        } else {
+          res.status(404).send({
+            message: "User does not  exists",
+          });
+        }
+      })
+      .catch((error) => {
+        res.status(500).send(error);
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error);
+  }
+};
+
+// login
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  const savedEmail = email.toLowerCase();
+
+  userModel
+    .findOne({ email: savedEmail, isDele: false })
+    .then(async (result) => {
+      if (result) {
+        if (result.isVerfied == true) {
+          const newpass = await bcrypt.compare(password, result.password);
+         
+          if (newpass) {
+            const options = {
+              expiresIn: "7d",
+            };
+            const token = jwt.sign(
+              { role: result.role, _id: result._id },
+              process.env.secert_key,
+              options
+            );
+            res.status(201).json({ result, token });
+          } else {
+            res.status(404).json("Invalaid password  or email");
+          }
+
+        } else {
+          return res.status(403).json({
+            message: "Verify your Account.",
+          });
+        }
+      } else {
+        res.status(404).json("Invalaid password  or email");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(400).json(error);
+    });
+};
+
 module.exports = {
   register,
+  verify,
+  login,
 };
