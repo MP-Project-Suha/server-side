@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
-
+const jwt = require("jsonwebtoken");
 const userSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    email: { type: String , required: true, unique=true},
-    password: { type: Array, required: true },
+    email: { type: String , required: true, unique:true},
+    password: { type: String, required: true },
     avatar: { type: String },
 
 
@@ -21,5 +21,14 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+userSchema.methods.generateVerificationToken = function () {
+    const user = this;
+    const verificationToken = jwt.sign(
+        { ID: user._id },
+        process.env.secert_key
+    );
+    return verificationToken;
+  };
 
 module.exports = mongoose.model("User", userSchema);

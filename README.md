@@ -79,7 +79,7 @@
 
 | HTTP Method | URL | Request Body | Request Params | Permissions | Success Status | Error status | Description |
 | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---------------------------- |
-| post |  /register | {firstName, lastName, avatar, email, password } | |  public |  201 | 400  | create new user                                    |
+| post |  /register | {firstName, lastName, email, password, role } | |  public |  201 | 400  | create new user                                    |
 | post |  /login | {email, password } |  | public | 201 | 404 | login for exist user                               |
 | post | /googlelogin |  |  |   public | 201 | 404 | login with google or create new uset by google |
 | post | /forgetPassword | {email} |   | public | 201 | 404 | search for email in DB then send link to user      |
