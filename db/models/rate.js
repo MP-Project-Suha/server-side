@@ -9,9 +9,9 @@ const rateSchema = new mongoose.Schema(
         ref: "User",
         required: true,
       },
-      event: {
+      ticket: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Event",
+        ref: "Ticket",
         required: true,
       },
 
