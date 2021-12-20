@@ -219,7 +219,7 @@
 | Name      | Required           | Unique | Defult | Refrence | Type    |
 | --------- | ------------------ | ------ | ------ | -------- | ------- |
 | order      | :white_check_mark: |        |        |          | Array |
-| event     | :white_check_mark: |        |        | Event    |         |
+| ticket     | :white_check_mark: |        |        | Ticket    |         |
 | total     | :white_check_mark: |        |        |     | Number |
 | createdBy | :white_check_mark: |        |        | User     |         |
 | isVerfied    | :white_check_mark: |        | false  |          | Boolean |
