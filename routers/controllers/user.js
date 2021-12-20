@@ -214,7 +214,7 @@ const forgetPassword = (req, res) => {
           const token = jwtSimple.encode(payload, secret);
 
 //Send email containing link to reset password.
-          const url = `${process.env.FRONT_URL}/${payload.id}/${token}`;
+          const url = `${process.env.FRONT_URL}/resetPassword/${payload.id}/${token}`;
           transporter.sendMail({
             to: savedEmail,
             subject: "Reset password link",
@@ -235,22 +235,20 @@ const forgetPassword = (req, res) => {
 const resetPassword = (req, res) => {
   const { _id } = req.params; //user id
   const { token } = req.params;
+  const { password } = req.body;
   userModel.findById(_id).then((result) => {
     const secret = result.password + `-` + result.avatar;
     const payload = jwtSimple.decode(token, secret);
   });
 
-  userModel.findById(id).then(async (result) => {
-    const { password } = req.body;
+  userModel.findById(_id).then(async (result) => {
+ 
     const SALT = Number(process.env.SALT);
     const hashedPass = await bcrypt.hash(password, SALT);
     if (hashedPass) {
       userModel
-        .findByIdAndUpdate(id, { password: hashedPass })
+        .findByIdAndUpdate(_id, { password: hashedPass })
         .then((result) => {
-          const options = {
-            expiresIn: "7d",
-          };
           const token = result.generateToken();
           res
             .status(200)
