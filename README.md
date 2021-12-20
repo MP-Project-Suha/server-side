@@ -214,7 +214,7 @@
 
 ---
 
-### Order Module:order, isVerified , total
+### Order Module:
 
 | Name       | Required           | Unique             | Default | Reference | Type   |
 | --------- | ------------------ | ------ | ------ | -------- | ------- |
