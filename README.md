@@ -63,7 +63,7 @@
 ---
 # UML Diagram:
 
-## ![UML](https://github.com/MP-Project-Suha/Server-side/blob/master/images/UML.png)
+## ![UML](https://github.com/MP-Project-Suha/server-side/blob/main/images/UML.png)
 ---
 
 ## Routers:
@@ -227,7 +227,7 @@
 
 # ER Digram:
 
-![ERD](https://github.com/MP-Project-Suha/Server-side/blob/master/images/ERD.png)
+![ERD](https://github.com/MP-Project-Suha/server-side/blob/main/images/ERD.png)
 
 ---
 ## Links:
