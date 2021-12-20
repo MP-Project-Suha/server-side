@@ -1,4 +1,9 @@
+// Models
 const userModel = require("../../db/models/user");
+const eventModel = require("../../db/models/event");
+const ticketModel = require("../../db/models/ticket");
+
+// import packages
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const jwtSimple = require("jwt-simple");
@@ -77,7 +82,7 @@ const verify = async (req, res) => {
     payload = jwt.verify(token, process.env.secret_key);
 
     userModel
-      .findOneAndUpdate({ _id: payload.ID }, { isVerfied: true }, { new: true })
+      .findOneAndUpdate({ _id: payload.ID }, { isVerified: true }, { new: true })
       .then((result) => {
         if (result) {
           res
@@ -107,7 +112,7 @@ const login = async (req, res) => {
     .findOne({ email: savedEmail, isDele: false })
     .then(async (result) => {
       if (result) {
-        if (result.isVerfied == true) {
+        if (result.isVerified == true) {
           const newpass = await bcrypt.compare(password, result.password);
 
           if (newpass) {
@@ -470,6 +475,58 @@ const getUser = (req, res) => {
     });
 };
 
+//delete user and his data soft delete
+const deleteUser = (req, res) => {
+  try {
+    const { _id } = req.params; //user id
+
+    // first find user then updated isDele to true
+    userModel
+      .findOneAndUpdate({ _id, isDele: false }, { isDele: true }, { new: true })
+      .then((result) => {
+        if (result) {
+          // then find all events that created by user then updated isDele to true
+          eventModel
+            .updateMany({ createdBy: _id, isDele: false }, { isDele: true })
+            .then((result) => {
+              if (result) {
+                // finally find all tickets of user events or user tickets that created by user then updated isDele to true
+                ticketModel
+                  .updateMany(
+                    {
+                      $or: [
+                        { createdBy: _id, isDele: false },
+                        { event: result._id, isDele: false },
+                      ],
+                    },
+                    { isDele: true },
+                    { new: true }
+                  )
+                  .then((result) => {
+                    if (result) {
+                      res.status(201).json(result);
+                    }
+                  });
+              } else {
+                res.status(201).json("deleted");
+              }
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        } else {
+          res.status(404).json("there is no user to delete");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).json(err);
+      });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   register,
   verify,
@@ -481,4 +538,5 @@ module.exports = {
   updateProfile,
   getAllUsers,
   getUser,
+  deleteUser,
 };

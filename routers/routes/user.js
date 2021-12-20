@@ -17,7 +17,8 @@ const {
   getProfile,
   updateProfile,
   getUser,
-  getAllUsers
+  getAllUsers,
+  deleteUser,
 } = require("../controllers/user");
 
 // Register route and verify account route
@@ -40,4 +41,6 @@ userRouter.put("/profile",authentication, updateProfile);
 //routes for Admin Dashboard
 userRouter.get("/users",authentication,authorization, getAllUsers);
 userRouter.get("/user/:_id",authentication,authorization, getUser);
+userRouter.delete("/user/:_id",authentication,authorization, deleteUser);
+
 module.exports = userRouter;
