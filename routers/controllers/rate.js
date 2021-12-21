@@ -1,10 +1,9 @@
 // Models
 const userModel = require("../../db/models/user");
 const eventModel = require("../../db/models/event");
-const ticketModel = require("../../db/models/ticket");
 const rateModel = require("../../db/models/rate");
 
-//create new event
+//create new rate
 const addRate = (req, res) => {
   try {
     const id = req.suha._id; // user id
@@ -63,10 +62,9 @@ const addRate = (req, res) => {
     console.log(error);
   }
 };
-// public event
+// get rates of event
 const getRates = (req, res) => {
   const { _id } = req.params; //event
-
   rateModel
     .find({ event: _id })
     .then((result) => {
