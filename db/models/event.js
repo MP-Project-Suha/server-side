@@ -13,9 +13,11 @@ const eventSchema = new mongoose.Schema(
     beginAt: { type: Date, required: true },
     endAt: { type: Date, required: true },
 
+    isPublic: { type: Boolean, default: false, required: true },
     isDele: { type: Boolean, default: false, required: true },
     isVerified: { type: Boolean, default: false, required: true },
 
+    
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
