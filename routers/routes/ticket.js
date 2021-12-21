@@ -11,15 +11,25 @@ const {
     getMyTickets,
     getMyTicket,
     getMyPendingTickets,
-    getMyPendingTicket
+    getMyPendingTicket,
+    updateMyTicket,
+    addMyTicket,    addTicketByAdmin,updateMyTicketByAdmin,
 } = require("../controllers/ticket");
 
 
 
-//get ticket for user 
+// ticket for user 
 ticketRouter.get("/myTickets",authentication, getMyTickets);
-ticketRouter.get("/myTicket",authentication, getMyTicket);
+ticketRouter.get("/myTicket/:_id",authentication, getMyTicket);
+
+// pending ticket for user 
 ticketRouter.get("/myPendingTickets",authentication, getMyPendingTickets);
 ticketRouter.get("/myPendingTicket/:_id",authentication, getMyPendingTicket);
 
+
+ticketRouter.post("/myTicket/:_id",authentication, addMyTicket);
+ticketRouter.put("/myTicket/:_id",authentication, updateMyTicket);
+
+ticketRouter.post("/controlTicket/:_id",authentication,authorization , addTicketByAdmin);
+ticketRouter.put("/controlTicket/:_id",authentication,authorization , updateMyTicketByAdmin);
 module.exports = ticketRouter;
