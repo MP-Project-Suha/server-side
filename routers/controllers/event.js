@@ -464,5 +464,4 @@ module.exports = {
   updateMyEvent,
   controlEvents,
   controlEvent
-
 };

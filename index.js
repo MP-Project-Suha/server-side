@@ -28,6 +28,10 @@ app.use(userRouter);
 const eventRouter = require("./routers/routes/event");
 app.use(eventRouter);
 
+//Ticket Router
+const ticketRouter = require("./routers/routes/ticket");
+app.use(ticketRouter);
+
 //Rate Router
 const rateRouter = require("./routers/routes/rate");
 app.use(rateRouter);
