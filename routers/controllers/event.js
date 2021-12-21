@@ -102,6 +102,7 @@ const getEvent = (req, res) => {
       res.status(400).json(err);
     });
 };
+
 //get all events of user
 const getMyEvents = (req, res) => {
   const userId = req.suha._id;
@@ -130,6 +131,8 @@ const getMyEvents = (req, res) => {
       res.status(400).json(err);
     });
 };
+
+
 //get all public event
 const allEvents = (req, res) => {
   eventModel
@@ -415,6 +418,42 @@ const updateMyEvent = (req, res) => {
       });
   };
 
+  //get all public event
+const  controlEvents= (req, res) => {
+    eventModel
+      .find({ isDele: false})
+      .populate("createdBy")
+      .then((result) => {
+        if (result) {
+          res.status(201).json(result);
+        } else {
+          res.status(404).json("There is no events to show");
+        }
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
+  };
+
+  // public event
+const controlEvent = (req, res) => {
+    const { _id } = req.params; //event
+    eventModel
+      .findOne({ _id, isDele: false , isPublic: true})
+      .populate("createdBy")
+      .then((result) => {
+        if (result) {
+          res.status(200).json(result);
+        } else {
+          res.status(404).json("no events");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).json(err);
+      });
+  };
+
 module.exports = {
   addEvent,
   getEvent,
@@ -422,5 +461,8 @@ module.exports = {
   allEvents,
   getMyEvents,
   getMyEvent,
-  updateMyEvent
+  updateMyEvent,
+  controlEvents,
+  controlEvent
+
 };
