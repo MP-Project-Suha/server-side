@@ -188,6 +188,7 @@
 | isVerified | :white_check_mark: |        | false    |           | Boolean |
 | isDele     | :white_check_mark: |        | false    |           | Boolean |
 | price      | :white_check_mark: |        |          |           | String  |
+| isPublic   | :white_check_mark: |        | false    |           | Boolean |
 
 ---
 

@@ -10,12 +10,14 @@ const eventSchema = new mongoose.Schema(
     price: { type:Number, required: true },
 
     createdAt: { type: Date, default: Date.now },
-    biginAt: { type: Date, required: true },
+    beginAt: { type: Date, required: true },
     endAt: { type: Date, required: true },
 
+    isPublic: { type: Boolean, default: false, required: true },
     isDele: { type: Boolean, default: false, required: true },
-    isVerfied: { type: Boolean, default: false, required: true },
+    isVerified: { type: Boolean, default: false, required: true },
 
+    
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

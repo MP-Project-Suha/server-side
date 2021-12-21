@@ -1,4 +1,9 @@
+// Models
 const userModel = require("../../db/models/user");
+const eventModel = require("../../db/models/event");
+const ticketModel = require("../../db/models/ticket");
+
+// import packages
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const jwtSimple = require("jwt-simple");
@@ -77,7 +82,7 @@ const verify = async (req, res) => {
     payload = jwt.verify(token, process.env.secret_key);
 
     userModel
-      .findOneAndUpdate({ _id: payload.ID }, { isVerfied: true }, { new: true })
+      .findOneAndUpdate({ _id: payload.ID }, { isVerified: true }, { new: true })
       .then((result) => {
         if (result) {
           res
@@ -107,7 +112,7 @@ const login = async (req, res) => {
     .findOne({ email: savedEmail, isDele: false })
     .then(async (result) => {
       if (result) {
-        if (result.isVerfied == true) {
+        if (result.isVerified == true) {
           const newpass = await bcrypt.compare(password, result.password);
 
           if (newpass) {
@@ -283,15 +288,19 @@ const getProfile = (req, res) => {
 };
 
 //update user data by user also soft delete
-const updateProfile = async(req, res) => {
+const updateProfile = async (req, res) => {
   try {
     const userId = req.suha._id;
-    const { firstName, lastName,password, avatar , email ,isDele} = req.body;
+    const { firstName, lastName, password, avatar, email, isDele } = req.body;
 
     //update first name
     if (firstName) {
       userModel
-        .findOneAndUpdate({ _id: userId, isDele: false }, { firstName },{new: true})
+        .findOneAndUpdate(
+          { _id: userId, isDele: false },
+          { firstName },
+          { new: true }
+        )
         .then((result) => {
           if (result) {
             res.status(200).json(result);
@@ -306,116 +315,215 @@ const updateProfile = async(req, res) => {
     //update last name name
     if (lastName) {
       userModel
-        .findOneAndUpdate({ _id: userId, isDele: false }, { lastName },{new: true})
+        .findOneAndUpdate(
+          { _id: userId, isDele: false },
+          { lastName },
+          { new: true }
+        )
         .then((result) => {
           if (result) {
             res.status(200).json(result);
           } else {
             res.status(404).json("user dose not exist");
           }
-          
         })
         .catch((error) => {
           res.status(400).json(error);
         });
     }
-        //update password
-        if (password) {
-            const SALT = Number(process.env.SALT);
-            const hashedPass = await bcrypt.hash(password, SALT);
-            userModel
-              .findOneAndUpdate({ _id: userId, isDele: false }, { password:hashedPass },{new: true})
-              .then((result) => {
-                if (result) {
-                  res.status(200).json(result);
-                } else {
-                  res.status(404).json("user dose not exist");
-                }
-                
-              })
-              .catch((error) => {
-                res.status(400).json(error);
-              });
+    //update password
+    if (password) {
+      const SALT = Number(process.env.SALT);
+      const hashedPass = await bcrypt.hash(password, SALT);
+      userModel
+        .findOneAndUpdate(
+          { _id: userId, isDele: false },
+          { password: hashedPass },
+          { new: true }
+        )
+        .then((result) => {
+          if (result) {
+            res.status(200).json(result);
+          } else {
+            res.status(404).json("user dose not exist");
           }
-                 //update avatar
-        if (avatar) {
-            userModel
-              .findOneAndUpdate({ _id: userId, isDele: false }, { avatar },{new: true})
-              .then((result) => {
-                if (result) {
-                  res.status(200).json(result);
-                } else {
-                  res.status(404).json("user dose not exist");
-                }
-                
-              })
-              .catch((error) => {
-                res.status(400).json(error);
-              });
+        })
+        .catch((error) => {
+          res.status(400).json(error);
+        });
+    }
+    //update avatar
+    if (avatar) {
+      userModel
+        .findOneAndUpdate(
+          { _id: userId, isDele: false },
+          { avatar },
+          { new: true }
+        )
+        .then((result) => {
+          if (result) {
+            res.status(200).json(result);
+          } else {
+            res.status(404).json("user dose not exist");
           }
+        })
+        .catch((error) => {
+          res.status(400).json(error);
+        });
+    }
 
-
-          if (email) {
-
-            const savedEmail = email.toLowerCase();
-            const existingUser = await userModel.findOne({ email: savedEmail }).exec();
-            if (existingUser) {
-              return res.status(409).send({
-                message: "Email is already in use.",
-              });
-            }
-            userModel
-              .findOneAndUpdate({ _id: userId, isDele: false }, { email: savedEmail },{new: true})
-              .then((result) => {
-                if (result) {
-                  res.status(200).json(result);
-                } else {
-                  res.status(404).json("user dose not exist");
-                }
-                
-              })
-              .catch((error) => {
-                res.status(400).json(error);
-              });
+    if (email) {
+      const savedEmail = email.toLowerCase();
+      const existingUser = await userModel
+        .findOne({ email: savedEmail })
+        .exec();
+      if (existingUser) {
+        return res.status(409).send({
+          message: "Email is already in use.",
+        });
+      }
+      userModel
+        .findOneAndUpdate(
+          { _id: userId, isDele: false },
+          { email: savedEmail },
+          { new: true }
+        )
+        .then((result) => {
+          if (result) {
+            res.status(200).json(result);
+          } else {
+            res.status(404).json("user dose not exist");
           }
+        })
+        .catch((error) => {
+          res.status(400).json(error);
+        });
+    }
 
-          if (isDele) {
-
-            userModel
-              .findOneAndUpdate({ _id: userId, isDele: false }, { isDele: true },{new: true})
-              .then((result) => {
-                if (result) {
-                  res.status(200).json(result);
-                } else {
-                  res.status(404).json("user dose not exist");
-                }
-                
-              })
-              .catch((error) => {
-                res.status(400).json(error);
-              });
+    if (isDele) {
+      userModel
+        .findOneAndUpdate(
+          { _id: userId, isDele: false },
+          { isDele: true },
+          { new: true }
+        )
+        .then((result) => {
+          if (result) {
+            res.status(200).json(result);
+          } else {
+            res.status(404).json("user dose not exist");
           }
-          if (!isDele) {
-
-            userModel
-              .findOneAndUpdate({ _id: userId, isDele: true }, { isDele: false },{new: true})
-              .then((result) => {
-                if (result) {
-                  res.status(200).json(result);
-                } else {
-                  res.status(200).json("wrong enters");
-                }
-                
-              })
-              .catch((error) => {
-                res.status(400).json(error);
-              });
+        })
+        .catch((error) => {
+          res.status(400).json(error);
+        });
+    }
+    if (!isDele) {
+      userModel
+        .findOneAndUpdate(
+          { _id: userId, isDele: true },
+          { isDele: false },
+          { new: true }
+        )
+        .then((result) => {
+          if (result) {
+            res.status(200).json(result);
+          } else {
+            res.status(200).json("wrong enters");
           }
-
-
+        })
+        .catch((error) => {
+          res.status(400).json(error);
+        });
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
+  }
+};
+
+//get all users
+const getAllUsers = (req, res) => {
+  userModel
+    .find({ isDele: false })
+    .then((result) => {
+      if (result) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json("There is no user to show");
+      }
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+};
+
+//get user by id
+const getUser = (req, res) => {
+  const { _id } = req.params; //user id
+  userModel
+    .findOne({ _id, isDele: false })
+    .then((result) => {
+      if (result) {
+        res.status(200).json(result);
+      } else {
+        res.status(404).json("There is no user to show");
+      }
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+};
+
+//delete user and his data soft delete
+const deleteUser = (req, res) => {
+  try {
+    const { _id } = req.params; //user id
+
+    // first find user then updated isDele to true
+    userModel
+      .findOneAndUpdate({ _id, isDele: false }, { isDele: true }, { new: true })
+      .then((result) => {
+        if (result) {
+          // then find all events that created by user then updated isDele to true
+          eventModel
+            .updateMany({ createdBy: _id, isDele: false }, { isDele: true })
+            .then((result) => {
+              if (result) {
+                // finally find all tickets of user events or user tickets that created by user then updated isDele to true
+                ticketModel
+                  .updateMany(
+                    {
+                      $or: [
+                        { createdBy: _id, isDele: false },
+                        { event: result._id, isDele: false },
+                      ],
+                    },
+                    { isDele: true },
+                    { new: true }
+                  )
+                  .then((result) => {
+                    if (result) {
+                      res.status(201).json(result);
+                    }
+                  });
+              } else {
+                res.status(201).json("deleted");
+              }
+            })
+            .catch((err) => {
+              res.status(400).json(err);
+            });
+        } else {
+          res.status(404).json("there is no user to delete");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).json(err);
+      });
+  } catch (error) {
+    console.log(error);
   }
 };
 
@@ -428,4 +536,7 @@ module.exports = {
   resetPassword,
   getProfile,
   updateProfile,
+  getAllUsers,
+  getUser,
+  deleteUser,
 };

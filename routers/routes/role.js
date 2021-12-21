@@ -4,9 +4,9 @@ const roleRouter = express.Router();
 //destructuring
 const { createRole, getAllRoles } = require("../controllers/role");
 
-// authentication middelle wear
+// authentication middle wear
 const authentication = require("../auth/authentication");
-// authentication middelle wear
+// authentication middle wear
 const authorization = require("../auth/authorization");
 
 //controllers:
