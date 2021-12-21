@@ -12,8 +12,9 @@ const {
     getRates
 } = require("../controllers/rate");
 
-// Register route and verify account route
+// new rate
 rateRouter.post("/rate/:_id",authentication, addRate);
+// get rate
 rateRouter.get("/rates/:_id", getRates);
 
 module.exports = rateRouter;

@@ -18,7 +18,7 @@ const orderSchema = new mongoose.Schema(
     total: { type: Number, required: true,},
 
     isDele: { type: Boolean, default: false, required: true },
-    isVerfied: { type: Boolean, default: false, required: true },
+    isVerified: { type: Boolean, default: false, required: true },
     expired: { type: Boolean, default: false, required: true },
 
     createdAt: { type: Date, default: Date.now },

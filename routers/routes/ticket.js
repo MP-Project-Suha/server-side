@@ -8,28 +8,37 @@ const authorization = require("../auth/authorization");
 
 // Destructuring controllers
 const {
-    getMyTickets,
-    getMyTicket,
-    getMyPendingTickets,
-    getMyPendingTicket,
-    updateMyTicket,
-    addMyTicket,    addTicketByAdmin,updateMyTicketByAdmin,
+  getMyTickets,
+  getMyTicket,
+  getMyPendingTickets,
+  getMyPendingTicket,
+  updateMyTicket,
+  addMyTicket,
+  addTicketByAdmin,
+  updateMyTicketByAdmin,
 } = require("../controllers/ticket");
 
+// ticket for user
+ticketRouter.get("/myTickets", authentication, getMyTickets);
+ticketRouter.get("/myTicket/:_id", authentication, getMyTicket);
 
+// pending ticket for user
+ticketRouter.get("/myPendingTickets", authentication, getMyPendingTickets);
+ticketRouter.get("/myPendingTicket/:_id", authentication, getMyPendingTicket);
 
-// ticket for user 
-ticketRouter.get("/myTickets",authentication, getMyTickets);
-ticketRouter.get("/myTicket/:_id",authentication, getMyTicket);
+ticketRouter.post("/myTicket/:_id", authentication, addMyTicket);
+ticketRouter.put("/myTicket/:_id", authentication, updateMyTicket);
 
-// pending ticket for user 
-ticketRouter.get("/myPendingTickets",authentication, getMyPendingTickets);
-ticketRouter.get("/myPendingTicket/:_id",authentication, getMyPendingTicket);
-
-
-ticketRouter.post("/myTicket/:_id",authentication, addMyTicket);
-ticketRouter.put("/myTicket/:_id",authentication, updateMyTicket);
-
-ticketRouter.post("/controlTicket/:_id",authentication,authorization , addTicketByAdmin);
-ticketRouter.put("/controlTicket/:_id",authentication,authorization , updateMyTicketByAdmin);
+ticketRouter.post(
+  "/controlTicket/:_id",
+  authentication,
+  authorization,
+  addTicketByAdmin
+);
+ticketRouter.put(
+  "/controlTicket/:_id",
+  authentication,
+  authorization,
+  updateMyTicketByAdmin
+);
 module.exports = ticketRouter;

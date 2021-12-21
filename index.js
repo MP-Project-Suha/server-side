@@ -36,6 +36,10 @@ app.use(ticketRouter);
 const rateRouter = require("./routers/routes/rate");
 app.use(rateRouter);
 
+//Order Router
+const orderRouter = require("./routers/routes/order");
+app.use(orderRouter);
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
