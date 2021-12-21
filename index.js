@@ -28,6 +28,10 @@ app.use(userRouter);
 const eventRouter = require("./routers/routes/event");
 app.use(eventRouter);
 
+//Rate Router
+const rateRouter = require("./routers/routes/rate");
+app.use(rateRouter);
+
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
