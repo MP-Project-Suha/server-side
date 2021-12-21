@@ -24,7 +24,9 @@ app.use(roleRouter);
 const userRouter = require("./routers/routes/user");
 app.use(userRouter);
 
-
+//Event Router
+const eventRouter = require("./routers/routes/event");
+app.use(eventRouter);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
