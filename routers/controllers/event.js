@@ -59,7 +59,7 @@ const getMyEvent = (req, res) => {
   const userId = req.suha._id;
 
   userModel
-    .findOne({ _id: userId, isDele: true })
+    .findOne({ _id: userId, isDele: false })
     .then((user) => {
       if (user) {
         eventModel
@@ -107,7 +107,7 @@ const getEvent = (req, res) => {
 const getMyEvents = (req, res) => {
   const userId = req.suha._id;
   userModel
-    .findOne({ _id: userId, isDele: true })
+    .findOne({ _id: userId, isDele: false })
     .then((user) => {
       if (user) {
         eventModel
