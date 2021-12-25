@@ -111,7 +111,7 @@ const getMyEvents = (req, res) => {
     .then((user) => {
       if (user) {
         eventModel
-          .find({ isDele: false })
+          .find({ createdBy:user._id,isDele: false })
           .populate("createdBy")
           .then((result) => {
             if (result) {
