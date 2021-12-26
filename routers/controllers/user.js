@@ -70,7 +70,7 @@ const register = async (req, res) => {
 const verify = async (req, res) => {
   try {
     const { token } = req.params;
-
+console.log(token);
     if (!token) {
       return res.status(422).send({
         message: "Missing Token",
@@ -238,10 +238,13 @@ const resetPassword = (req, res) => {
   const { _id } = req.params; //user id
   const { token } = req.params;
   const { password } = req.body;
-  userModel.findById(_id).then((result) => {
-    const secret = result.password + `-` + result.avatar;
-    const payload = jwtSimple.decode(token, secret);
-  });
+ 
+  // userModel.findById(_id).then((result) => {
+
+  //   const secret = result.password + `-` + result.avatar;
+  //   const payload = jwtSimple.decode(token, secret);
+
+  // });
 
   userModel.findById(_id).then(async (result) => {
     const SALT = Number(process.env.SALT);

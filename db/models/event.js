@@ -12,6 +12,8 @@ const eventSchema = new mongoose.Schema(
     createdAt: { type: Date, default: Date.now },
     beginAt: { type: Date, required: true },
     endAt: { type: Date, required: true },
+    startTime: { type: Date, required: true },
+    endTime: { type: Date, required: true },
 
     isPublic: { type: Boolean, default: false, required: true },
     isDele: { type: Boolean, default: false, required: true },

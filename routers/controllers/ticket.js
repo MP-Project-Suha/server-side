@@ -116,7 +116,7 @@ const updateMyTicket = (req, res) => {
         if (user) {
           ticketModel
             .findOneAndUpdate(
-              { _id, isDele: false, isVerified: false },
+              { _id, isDele: false, isVerified: false,createdBy:user._id },
               { isVerified: true },
               { new: true }
             )
@@ -178,7 +178,7 @@ const getMyTicket = (req, res) => {
   const userId = req.suha._id;
 
   userModel
-    .findOne({ _id: userId, isDele: true })
+    .findOne({ _id: userId, isDele: false })
     .then((user) => {
       if (user) {
         ticketModel
@@ -209,7 +209,7 @@ const getMyPendingTicket = (req, res) => {
   const userId = req.suha._id;
 
   userModel
-    .findOne({ _id: userId, isDele: true })
+    .findOne({ _id: userId, isDele: false })
     .then((user) => {
       if (user) {
         ticketModel
@@ -238,12 +238,12 @@ const getMyPendingTicket = (req, res) => {
 const getMyTickets = (req, res) => {
   const userId = req.suha._id;
   userModel
-    .findOne({ _id: userId, isDele: true, isVerified: false })
+    .findOne({ _id: userId, isDele: false})
     .then((user) => {
       if (user) {
         ticketModel
-          .find({ isDele: false })
-          .populate("createdBy event")
+          .find({ isDele: false , createdBy:userId, isVerified: true})
+          .populate("event")
           .then((result) => {
             if (result) {
               res.status(201).json(result);
@@ -267,7 +267,7 @@ const getMyTickets = (req, res) => {
 const getMyPendingTickets = (req, res) => {
   const userId = req.suha._id;
   userModel
-    .findOne({ _id: userId, isDele: true, isVerified: true })
+    .findOne({ _id: userId, isDele: true, isVerified: false })
     .then((user) => {
       if (user) {
         ticketModel
@@ -321,9 +321,10 @@ const addMyTicket = (req, res) => {
         if (result) {
           const newTicket = new ticketModel({
             event: _id,
-            createdBy: result._id,
+            createdBy: id,
           });
           newTicket.save();
+        
           res.status(201).json(newTicket);
         } else {
           res.status(404).json("not found user");
