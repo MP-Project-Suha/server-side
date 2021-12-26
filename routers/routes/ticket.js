@@ -22,7 +22,7 @@ const {
 // ticket for user
 ticketRouter.get("/myTickets", authentication, getMyTickets);
 ticketRouter.get("/myTicket/:_id", authentication, getMyTicket);
-ticketRouter.post("/guestList/:_id",  guestList);
+ticketRouter.post("/guestList/:_id", authentication,  guestList);
 // pending ticket for user
 ticketRouter.get("/myPendingTickets", authentication, getMyPendingTickets);
 ticketRouter.get("/myPendingTicket/:_id", authentication, getMyPendingTicket);

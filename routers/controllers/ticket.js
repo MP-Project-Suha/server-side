@@ -341,98 +341,82 @@ const addMyTicket = (req, res) => {
 
 //guest list
 const guestList = async (req, res) => {
-  let checkErrors = [];
-  let checkSuccess = [];
+
 
   try {
-    // const id = req.suha._id; //user id
+    const id = req.suha._id; //user id
     const _id = req.params; //event id
-    const { guests } = req.body;
-    let count = 0;
+    const { guests } = req.body; //array of objects {email:"", firstName:"", lastName:""}
+    const checkSuccess = [];
 
-    // const guests = [
-    //   {
-    //     email: "SuhaalHumaid@hotmail.com",
-    //     firstName: "Suha",
-    //     lastName: "Saleh",
-    //   },
-    //   { email: "fras7a@hotmail.com", firstName: "Sara", lastName: "Salem" },
-    //   {
-    //     email: "SuhaalHumaid@gmail.com",
-    //     firstName: "Nourah",
-    //     lastName: "Saleh",
-    //   },
-    //   { email: "fras7a@gmail.com", firstName: "Haifa", lastName: "Saleh" },
-    // ];
-for(let i=0 ;i<guests.length;i++){
-    // guests.forEach((guest) => { 
-      userModel
-        .findOne({ email: guests[i].email.toLowerCase() })
-        .exec(async (err, user) => {
-          if (err) {
-            checkErrors.push(err);
-          }
-          if (user) {
-            //user id
+    const eventExist = await eventModel.findOne({
+      $and: [{ _id: _id }, { createdBy: id },{ isVerified: true }],
+    });
+
+    if (eventExist) {
+      for (let i = 0; i < guests.length; i++) {
+        const user = await userModel.findOne({
+          email: guests[i].email.toLowerCase(),
+        });
+
+        if (user) {
+          const existTicket = await ticketModel.findOne({
+            $and: [{ event: _id }, { createdBy: user._id }],
+          });
+          if (existTicket) {
+            const pendingTicket = await ticketModel.findOneAndUpdate(
+              {
+                $and: [
+                  { event: _id },
+                  { createdBy: user._id },
+                  { isVerified: false },
+                ],
+              },
+              { isVerified: true },
+              { new: true }
+            );
+            if (pendingTicket) checkSuccess.push(pendingTicket);
+            else checkSuccess.push(existTicket);
+          } else {
             const newTicket = await new ticketModel({
               event: _id,
               createdBy: user._id,
+              isVerified: true,
             });
-            await newTicket.save((err, data) => {
-              if (err) {
-                checkErrors.push(err);
-              }
-              checkSuccess.push(data);
-              console.log(checkSuccess);
-            });
-
-            // here send mail
-          } else {
-          
-            //create new user
-            let password = guests[i].email + process.env.secret_key;
-            // const SALT = Number(process.env.SALT);
-            // const hashedPass = await bcrypt.hash(password, SALT);
-            const newUser = await new userModel({
-              firstName: guests[i].firstName,
-              lastName: guests[i].lastName,
-              password,
-              email: guests[i].email.toLowerCase(),
-              role: process.env.USER_ROLE,
-            });
-            await newUser.save(async (err, data) => {
-              if (err) {
-                checkErrors.push(err);
-              }
-
-              const newTicket = await new ticketModel({
-                event: _id,
-                createdBy: data._id,
-              });
-              await newTicket.save((err, data) => {
-                if (err) {
-                  checkErrors.push(err);
-                }
-                checkSuccess.push(data);
-              });
-
-              // checkSuccess.push(newTicket);
-              // here send mail
-            });
+            await newTicket.save();
+            checkSuccess.push(newTicket);
           }
+
+          // here send mail
+        } else {
+          //create new user
+          let password = guests[i].email + process.env.secret_key;
+          const newUser = await new userModel({
+            firstName: guests[i].firstName,
+            lastName: guests[i].lastName,
+            password,
+            email: guests[i].email.toLowerCase(),
+            role: process.env.USER_ROLE,
+          });
+          newUser.save();
+
+          const newTicket = await new ticketModel({
+            event: _id,
+            createdBy: newUser._id,
+            isVerified: true,
+          });
+          await newTicket.save();
+          checkSuccess.push(newTicket);
         }
-       
-        );
       }
-console.log(checkSuccess);
-      res.status(200).json(checkSuccess);
-
-
+      res.status(201).json(checkSuccess);
+    } else {
+      res.status(404).json("no such a event for you");
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
   }
-
 };
 
 module.exports = {
