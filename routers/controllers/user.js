@@ -182,8 +182,8 @@ const googleLogin = (req, res) => {
 
                 const token = data.generateToken();
 
-                // const { _id, firstName,lastName, email, role } = newUser;
-                res.status(200).json({ result: data, token });
+                const { _id, firstName,lastName, email, role } = newUser;
+                res.status(200).json({ newUser: data, token });
               });
             }
           }
