@@ -39,7 +39,7 @@ const updateMyTicketByAdmin = (req, res) => {
   const { _id } = req.params; //ticket id
   const userId = req.suha._id;
   const { isVerified, isDele } = req.body;
-
+  
   if (isVerified) {
     userModel
       .findOne({ _id: userId, isDele: false })
@@ -293,7 +293,7 @@ const getMyPendingTickets = (req, res) => {
 };
 
 //create new ticket by admin
-const addTicketByAdmin = (req, res) => {
+const addTicketByAdmin = async (req, res) => {
   try {
     const id = req.suha._id; //user id
     const _id = req.params; //event id
@@ -301,8 +301,10 @@ const addTicketByAdmin = (req, res) => {
       event: _id,
       createdBy: id,
     });
-
     newTicket.save();
+    const event = await eventModel.findById(_id );
+    event.tickets.push(newTicket);
+    await event.save();
     res.status(201).json(newTicket);
   } catch (error) {
     console.log(error);
@@ -311,20 +313,22 @@ const addTicketByAdmin = (req, res) => {
 };
 
 //create new ticket
-const addMyTicket = (req, res) => {
+const addMyTicket = async (req, res) => {
   try {
     const id = req.suha._id; //user id
     const _id = req.params; //event id
     userModel
       .findOne({ _id: id, isDele: false })
-      .then((result) => {
+      .then(async(result) => {
         if (result) {
           const newTicket = new ticketModel({
             event: _id,
             createdBy: id,
           });
           newTicket.save();
-
+          const event = await eventModel.findById(_id );
+          event.tickets.push(newTicket);
+          await event.save();
           res.status(201).json(newTicket);
         } else {
           res.status(404).json("not found user");
@@ -385,6 +389,9 @@ const guestList = async (req, res) => {
             });
             await newTicket.save();
             checkSuccess.push(newTicket);
+            const event = await eventModel.findById(_id);
+            event.tickets.push(newTicket);
+            await event.save();
           }
 
           // here send mail
@@ -407,6 +414,9 @@ const guestList = async (req, res) => {
           });
           await newTicket.save();
           checkSuccess.push(newTicket);
+          const event = await eventModel.findOne({_id });
+          event.tickets.push(newTicket);
+          await event.save();
         }
       }
       res.status(201).json(checkSuccess);

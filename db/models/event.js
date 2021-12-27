@@ -25,8 +25,13 @@ const eventSchema = new mongoose.Schema(
         ref: "User",
         required: true,
       },
-
+      tickets: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Ticket',
+        unique:true,
+     }]
   },
+
   { timestamps: true }
 );
 
