@@ -116,7 +116,7 @@ const updateMyTicket = (req, res) => {
         if (user) {
           ticketModel
             .findOneAndUpdate(
-              { _id, isDele: false, isVerified: false,createdBy:user._id },
+              { _id, isDele: false, isVerified: false, createdBy: user._id },
               { isVerified: true },
               { new: true }
             )
@@ -238,11 +238,11 @@ const getMyPendingTicket = (req, res) => {
 const getMyTickets = (req, res) => {
   const userId = req.suha._id;
   userModel
-    .findOne({ _id: userId, isDele: false})
+    .findOne({ _id: userId, isDele: false })
     .then((user) => {
       if (user) {
         ticketModel
-          .find({ isDele: false , createdBy:userId, isVerified: true})
+          .find({ isDele: false, createdBy: userId, isVerified: true })
           .populate("event")
           .then((result) => {
             if (result) {
@@ -324,7 +324,7 @@ const addMyTicket = (req, res) => {
             createdBy: id,
           });
           newTicket.save();
-        
+
           res.status(201).json(newTicket);
         } else {
           res.status(404).json("not found user");
@@ -333,6 +333,86 @@ const addMyTicket = (req, res) => {
       .catch((err) => {
         res.status(400).json(err);
       });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(error);
+  }
+};
+
+//guest list
+const guestList = async (req, res) => {
+
+
+  try {
+    const id = req.suha._id; //user id
+    const _id = req.params; //event id
+    const { guests } = req.body; //array of objects {email:"", firstName:"", lastName:""}
+    const checkSuccess = [];
+
+    const eventExist = await eventModel.findOne({
+      $and: [{ _id: _id }, { createdBy: id },{ isVerified: true }],
+    });
+
+    if (eventExist) {
+      for (let i = 0; i < guests.length; i++) {
+        const user = await userModel.findOne({
+          email: guests[i].email.toLowerCase(),
+        });
+
+        if (user) {
+          const existTicket = await ticketModel.findOne({
+            $and: [{ event: _id }, { createdBy: user._id }],
+          });
+          if (existTicket) {
+            const pendingTicket = await ticketModel.findOneAndUpdate(
+              {
+                $and: [
+                  { event: _id },
+                  { createdBy: user._id },
+                  { isVerified: false },
+                ],
+              },
+              { isVerified: true },
+              { new: true }
+            );
+            if (pendingTicket) checkSuccess.push(pendingTicket);
+            else checkSuccess.push(existTicket);
+          } else {
+            const newTicket = await new ticketModel({
+              event: _id,
+              createdBy: user._id,
+              isVerified: true,
+            });
+            await newTicket.save();
+            checkSuccess.push(newTicket);
+          }
+
+          // here send mail
+        } else {
+          //create new user
+          let password = guests[i].email + process.env.secret_key;
+          const newUser = await new userModel({
+            firstName: guests[i].firstName,
+            lastName: guests[i].lastName,
+            password,
+            email: guests[i].email.toLowerCase(),
+            role: process.env.USER_ROLE,
+          });
+          newUser.save();
+
+          const newTicket = await new ticketModel({
+            event: _id,
+            createdBy: newUser._id,
+            isVerified: true,
+          });
+          await newTicket.save();
+          checkSuccess.push(newTicket);
+        }
+      }
+      res.status(201).json(checkSuccess);
+    } else {
+      res.status(404).json("no such a event for you");
+    }
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
@@ -348,4 +428,5 @@ module.exports = {
   addMyTicket,
   addTicketByAdmin,
   updateMyTicketByAdmin,
+  guestList,
 };
