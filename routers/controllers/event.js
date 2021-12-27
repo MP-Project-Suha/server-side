@@ -20,6 +20,7 @@ const addEvent = (req, res) => {
       endTime,
       isPublic,
     } = req.body;
+
     userModel
       .findOne({ _id: id, isDele: false })
       .then((result) => {
@@ -40,6 +41,7 @@ const addEvent = (req, res) => {
           });
 
           newEvent.save();
+  
           res.status(201).json(newEvent);
         } else {
           res.status(404).json("not found user");
@@ -54,6 +56,26 @@ const addEvent = (req, res) => {
 };
 
 // user event
+const getMyEventTickets = (req, res) => {
+  const { _id } = req.params;
+  const userId = req.suha._id;
+        ticketModel
+          .find({ event: _id, isDele: false })
+          .populate("createdBy").then((result) => {
+            if (result) {
+              res.status(200).json(result);
+            } else {
+              res.status(404).json("There is no tickets for event");
+            }
+          })
+          .catch((err) => {
+            res.status(400).json(err);
+          });
+
+
+};
+
+// user event
 const getMyEvent = (req, res) => {
   const { _id } = req.params;
   const userId = req.suha._id;
@@ -64,7 +86,7 @@ const getMyEvent = (req, res) => {
       if (user) {
         eventModel
           .findOne({ _id, isDele: false })
-          .populate("createdBy")
+          .populate("createdBy tickets")
           .then((result) => {
             if (result) {
               res.status(200).json(result);
@@ -83,13 +105,12 @@ const getMyEvent = (req, res) => {
       res.status(400).json(err);
     });
 };
-
 // public event
 const getEvent = (req, res) => {
   const { _id } = req.params; //event
   eventModel
     .findOne({ _id, isDele: false, isPublic: true })
-    .populate("createdBy")
+    .populate("createdBy tickets")
     .then((result) => {
       if (result) {
         res.status(200).json(result);
@@ -106,6 +127,7 @@ const getEvent = (req, res) => {
 //get all events of user
 const getMyEvents = (req, res) => {
   const userId = req.suha._id;
+
   userModel
     .findOne({ _id: userId, isDele: false })
     .then((user) => {
@@ -130,6 +152,7 @@ const getMyEvents = (req, res) => {
     .catch((err) => {
       res.status(400).json(err);
     });
+
 };
 
 //get all public event
@@ -147,6 +170,7 @@ const allEvents = (req, res) => {
     .catch((err) => {
       res.status(400).json(err);
     });
+  
 };
 
 //delete my event
@@ -476,4 +500,5 @@ module.exports = {
   updateMyEvent,
   controlEvents,
   controlEvent,
+  getMyEventTickets
 };

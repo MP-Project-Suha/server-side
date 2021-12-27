@@ -16,7 +16,8 @@ const {
   deleteMyEvent,
   updateMyEvent,
   controlEvents,
-  controlEvent
+  controlEvent,
+  getMyEventTickets
 } = require("../controllers/event");
 
 //public event
@@ -25,7 +26,9 @@ eventRouter.get("/events", allEvents);
 
 // crud on event of user
 eventRouter.get("/myEvent/:_id",authentication, getMyEvent);
+eventRouter.get("/myEventTickets/:_id",authentication, getMyEventTickets);
 eventRouter.get("/myEvents",authentication, getMyEvents);
+
 
 
 eventRouter.post("/myEvent",authentication, addEvent);
