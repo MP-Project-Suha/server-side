@@ -11,7 +11,7 @@ const addEvent = (req, res) => {
       title,
       shortDisc,
       longDisc,
-      images,
+      image,
       location,
       price,
       beginAt,
@@ -23,13 +23,13 @@ const addEvent = (req, res) => {
 
     userModel
       .findOne({ _id: id, isDele: false })
-      .then((result) => {
+      .then(async(result) => {
         if (result) {
-          const newEvent = new eventModel({
+          const newEvent = await new eventModel({
             title,
             shortDisc,
             longDisc,
-            images,
+            image,
             location,
             price,
             beginAt,
@@ -40,7 +40,7 @@ const addEvent = (req, res) => {
             createdBy: result._id,
           });
 
-          newEvent.save();
+          await newEvent.save();
   
           res.status(201).json(newEvent);
         } else {
@@ -109,7 +109,7 @@ const getMyEvent = (req, res) => {
 const getEvent = (req, res) => {
   const { _id } = req.params; //event
   eventModel
-    .findOne({ _id, isDele: false, isPublic: true })
+    .findOne({ _id:_id, isDele: false})
     .populate("createdBy tickets")
     .then((result) => {
       if (result) {
@@ -158,8 +158,8 @@ const getMyEvents = (req, res) => {
 //get all public event
 const allEvents = (req, res) => {
   eventModel
-    .find({ isDele: false, isPublic: true })
-    .populate("createdBy")
+    .find({ isDele: false, isVerified:true, isPublic:true})
+    .populate("createdBy tickets")
     .then((result) => {
       if (result) {
         res.status(201).json(result);
@@ -235,7 +235,7 @@ const updateMyEvent = (req, res) => {
     title,
     shortDisc,
     longDisc,
-    images,
+    image,
     location,
     price,
     beginAt,
@@ -342,9 +342,9 @@ const updateMyEvent = (req, res) => {
               res.status(400).json(err);
             });
         }
-        if (images) {
+        if (image) {
           eventModel
-            .findOneAndUpdate({ _id, isDele: false }, { images }, { new: true })
+            .findOneAndUpdate({ _id, isDele: false }, { image }, { new: true })
             .then((result) => {
               if (result) {
                 res.status(201).json(result);

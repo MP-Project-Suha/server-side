@@ -39,7 +39,7 @@ const updateMyTicketByAdmin = (req, res) => {
   const { _id } = req.params; //ticket id
   const userId = req.suha._id;
   const { isVerified, isDele } = req.body;
-  
+
   if (isVerified) {
     userModel
       .findOne({ _id: userId, isDele: false })
@@ -102,18 +102,71 @@ const updateMyTicketByAdmin = (req, res) => {
       });
   }
 };
+const readTicket = (req, res) => {
+  const { _id } = req.params; //ticket id
+  const userId = req.suha._id;
 
+  userModel
+    .findOne({ _id: userId, isDele: false })
+    .then((user) => {
+      if (user) {
+      
+          ticketModel.findById(_id).then((result) => {
+            if (result) {
+              if (result.isDele || result.expired) {
+                res.status(404).json("Invalid Ticket");
+              } else {
+                if (result.isVerified) {
+                  ticketModel
+                    .findOneAndUpdate(
+                      { _id, isDele: false, isUsed: false },
+                      { isUsed: true },
+                      { new: true }
+                    )
+                    .populate("createdBy event")
+                    .then((ticketresult) => {
+                      if (ticketresult) {
+                        res.status(200).json("Thank You");
+                      } else {
+                        res.status(200).json("Thank You");
+                      }
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                      res.status(400).json(err);
+                    });
+                } else {
+                  res.status(403).json("Unverified Ticket");
+                }
+              }
+            }
+          }).catch((err) => {
+            console.log(err);
+            res.status(400).json(err);
+          });
+        
+      } else {
+        res.status(404).json("user dose not exist");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+};
 // update user ticket
 const updateMyTicket = (req, res) => {
   const { _id } = req.params; //ticket id
   const userId = req.suha._id;
-  const { isVerified, isDele } = req.body;
+  const { isVerified, isDele, isUsed } = req.body;
 
-  if (isVerified) {
-    userModel
-      .findOne({ _id: userId, isDele: false })
-      .then((user) => {
-        if (user) {
+  // const {isVerified, isDele, isUsed}= req.query
+
+  userModel
+    .findOne({ _id: userId, isDele: false })
+    .then((user) => {
+      if (user) {
+        if (isVerified) {
           ticketModel
             .findOneAndUpdate(
               { _id, isDele: false, isVerified: false, createdBy: user._id },
@@ -131,20 +184,9 @@ const updateMyTicket = (req, res) => {
             .catch((err) => {
               res.status(400).json(err);
             });
-        } else {
-          res.status(404).json("user dose not exist");
         }
-      })
-      .catch((err) => {
-        res.status(400).json(err);
-      });
-  }
 
-  if (isDele) {
-    userModel
-      .findOne({ _id: userId, isDele: false })
-      .then((user) => {
-        if (user) {
+        if (isDele) {
           ticketModel
             .findOneAndUpdate(
               { _id, isDele: false, isVerified: true },
@@ -162,38 +204,38 @@ const updateMyTicket = (req, res) => {
             .catch((err) => {
               res.status(400).json(err);
             });
-        } else {
-          res.status(404).json("user dose not exist");
         }
-      })
-      .catch((err) => {
-        res.status(400).json(err);
-      });
-  }
-};
-
-// user ticket
-const getMyTicket = (req, res) => {
-  const { _id } = req.params; //ticket id
-  const userId = req.suha._id;
-
-  userModel
-    .findOne({ _id: userId, isDele: false })
-    .then((user) => {
-      if (user) {
-        ticketModel
-          .findOne({ _id, isDele: false, isVerified: true })
-          .populate("createdBy event")
-          .then((result) => {
+        if (isUsed) {
+          ticketModel.findById(_id).then((result) => {
             if (result) {
-              res.status(200).json(result);
-            } else {
-              res.status(404).json("There is no ticket for you");
+              if (result.isDele || result.expired) {
+                res.status(404).json("deleted or expired ticket");
+              } else {
+                if (result.isVerified) {
+                  ticketModel
+                    .findOneAndUpdate(
+                      { _id, isDele: false, isUsed: false },
+                      { isUsed: true },
+                      { new: true }
+                    )
+                    .populate("createdBy event")
+                    .then((result) => {
+                      if (result) {
+                        res.status(200).json("used now");
+                      } else {
+                        res.status(200).json("used");
+                      }
+                    })
+                    .catch((err) => {
+                      res.status(400).json(err);
+                    });
+                } else {
+                  res.status(403).json("unverified ticket");
+                }
+              }
             }
-          })
-          .catch((err) => {
-            res.status(400).json(err);
           });
+        }
       } else {
         res.status(404).json("user dose not exist");
       }
@@ -201,6 +243,38 @@ const getMyTicket = (req, res) => {
     .catch((err) => {
       res.status(400).json(err);
     });
+};
+
+// user ticket
+const getMyTicket = (req, res) => {
+  const { _id } = req.params; //ticket id
+  // const userId = req.suha._id;
+
+  // userModel
+  //   .findOne({ _id: userId, isDele: false })
+  //   .then((user) => {
+  //     if (user) {
+  ticketModel
+    .findOne({ _id, isDele: false, isVerified: true })
+    .populate("createdBy event")
+    .then((result) => {
+      if (result) {
+        // const token = result.generateToken(result.event.endAt);
+        res.status(200).json({ result });
+      } else {
+        res.status(404).json("There is no ticket for you");
+      }
+    })
+    .catch((err) => {
+      res.status(400).json(err);
+    });
+  //   } else {
+  //     res.status(404).json("user dose not exist");
+  //   }
+  // })
+  // .catch((err) => {
+  //   res.status(400).json(err);
+  // });
 };
 
 // user pending ticket
@@ -267,7 +341,7 @@ const getMyTickets = (req, res) => {
 const getMyPendingTickets = (req, res) => {
   const userId = req.suha._id;
   userModel
-    .findOne({ _id: userId, isDele: true, isVerified: false })
+    .findOne({ _id: userId, isDele: false })
     .then((user) => {
       if (user) {
         ticketModel
@@ -302,7 +376,7 @@ const addTicketByAdmin = async (req, res) => {
       createdBy: id,
     });
     newTicket.save();
-    const event = await eventModel.findById(_id );
+    const event = await eventModel.findById(_id);
     event.tickets.push(newTicket);
     await event.save();
     res.status(201).json(newTicket);
@@ -319,22 +393,35 @@ const addMyTicket = async (req, res) => {
     const _id = req.params; //event id
     userModel
       .findOne({ _id: id, isDele: false })
-      .then(async(result) => {
+      .then(async (result) => {
         if (result) {
-          const newTicket = new ticketModel({
+          const result = await ticketModel.find({
             event: _id,
-            createdBy: id,
+            isVerified: true,
           });
-          newTicket.save();
-          const event = await eventModel.findById(_id );
-          event.tickets.push(newTicket);
-          await event.save();
-          res.status(201).json(newTicket);
+
+          if (result.length <= 1) {
+            const newTicket = new ticketModel({
+              event: _id,
+              createdBy: id,
+              isVerified: true,
+            });
+            newTicket.save();
+
+            const event = await eventModel.findById(_id);
+            event.tickets.push(newTicket);
+            await event.save();
+            const token = newTicket.generateToken(event.endAt);
+            res.status(201).json({ newTicket, token });
+          } else {
+            res.status(403).json("you can not add more ticket");
+          }
         } else {
           res.status(404).json("not found user");
         }
       })
       .catch((err) => {
+        console.log(err);
         res.status(400).json(err);
       });
   } catch (error) {
@@ -345,8 +432,6 @@ const addMyTicket = async (req, res) => {
 
 //guest list
 const guestList = async (req, res) => {
-
-
   try {
     const id = req.suha._id; //user id
     const _id = req.params; //event id
@@ -354,7 +439,7 @@ const guestList = async (req, res) => {
     const checkSuccess = [];
 
     const eventExist = await eventModel.findOne({
-      $and: [{ _id: _id }, { createdBy: id },{ isVerified: true }],
+      $and: [{ _id: _id }, { createdBy: id }, { isVerified: true }],
     });
 
     if (eventExist) {
@@ -414,7 +499,7 @@ const guestList = async (req, res) => {
           });
           await newTicket.save();
           checkSuccess.push(newTicket);
-          const event = await eventModel.findOne({_id });
+          const event = await eventModel.findOne({ _id });
           event.tickets.push(newTicket);
           await event.save();
         }
@@ -439,4 +524,5 @@ module.exports = {
   addTicketByAdmin,
   updateMyTicketByAdmin,
   guestList,
+  readTicket,
 };

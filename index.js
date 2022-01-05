@@ -40,6 +40,12 @@ app.use(rateRouter);
 const orderRouter = require("./routers/routes/order");
 app.use(orderRouter);
 
+//payment router
+const paymentRouter = require("./routers/routes/payNow");
+app.use(paymentRouter);
+
+
+// server 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);

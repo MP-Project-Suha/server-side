@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/MP-Project-Suha/server-side#readme",
   "dependencies": {
+    "@stripe/stripe-js": "^1.22.0",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
@@ -30,6 +31,7 @@
     "jwt-simple": "^0.5.6",
     "mongoose": "^6.1.2",
     "nodemailer": "^6.7.2",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "stripe": "^8.195.0"
   }
 }
